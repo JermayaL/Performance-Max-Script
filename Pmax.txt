@@ -1,4 +1,8 @@
-﻿function main() {
+/****************************
+ * Created By: Jermaya Leijen (https://partout.nl/)
+ ****************************/
+
+function main() {
   const count_days=14  
   const sheet_url="https://docs.google.com/spreadsheets/d/1FXIlWWDdvozYy4EtlnGwj78sHUat28hWNOj5rDoOefY/edit#gid=0"
 
