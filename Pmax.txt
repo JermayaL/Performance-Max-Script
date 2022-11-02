@@ -1,0 +1,73 @@
+﻿function main() {
+  const count_days=14  
+  const sheet_url="https://docs.google.com/spreadsheets/d/1FXIlWWDdvozYy4EtlnGwj78sHUat28hWNOj5rDoOefY/edit#gid=0"
+
+  
+  const end=new Date(Date.now() - 86400000)    
+  const start=new Date(Date.now() - count_days*86400000)  
+  
+  let sh
+  let searchResults
+
+  const ss=SpreadsheetApp.openByUrl(sheet_url)
+  
+ 
+
+  let data=[]  
+  searchResults = AdsApp.search( `SELECT  segments.day_of_week, segments.hour, metrics.conversions, metrics.conversions_value, metrics.clicks, campaign.id,
+  metrics.cost_micros, metrics.impressions  FROM campaign 
+  WHERE campaign.advertising_channel_type = PERFORMANCE_MAX AND segments.date>='${date_format(start)}' AND segments.date <='${date_format(end)}' `)
+  // ORDER BY segments.day_of_week ASC`
+  for (const row of searchResults) {
+    //Logger.log(row)
+    data.push([row.segments.dayOfWeek,row.segments.hour, row.campaign.id, row.metrics.impressions,row.metrics.clicks,row.metrics.conversions,row.metrics.conversionsValue,(parseInt(row.metrics.costMicros)/1000000).toFixed(2)])
+  } 
+  sh=ss.getSheetByName("day of the week - hour")
+  if (sh.getMaxRows()>1) sh.getRange(2,1,sh.getMaxRows(),data[0].length).clear()
+  sh.getRange(2,1,data.length, data[0].length).setValues(data);
+    
+  
+  data=[]
+  searchResults = AdsApp.search( `SELECT  segments.product_item_id, campaign.advertising_channel_type, metrics.conversions, metrics.conversions_value, metrics.clicks,
+  metrics.cost_micros, metrics.impressions  FROM shopping_performance_view 
+  WHERE campaign.advertising_channel_type = PERFORMANCE_MAX AND segments.date>='${date_format(start)}' AND segments.date <='${date_format(end)}' `)
+  // ORDER BY segments.day_of_week DESC, segments.hour ASC
+
+  for (const row of searchResults) {
+    //Logger.log(row)
+    data.push([row.segments.productItemId,row.metrics.impressions,row.metrics.clicks,row.metrics.conversions,row.metrics.conversionsValue,(parseInt(row.metrics.costMicros)/1000000).toFixed(2)])
+  }
+  sh=ss.getSheetByName("Products ID")
+  if (sh.getMaxRows()>1) sh.getRange(2,1,sh.getMaxRows(),data[0].length).clear()
+  sh.getRange(2,1,data.length, data[0].length).setValues(data);
+  
+  
+  data=[]
+  searchResults = AdsApp.search( `SELECT  asset_group.name,asset_group_listing_group_filter.case_value.product_type.level, asset_group.id,asset_group_listing_group_filter.case_value.product_item_id.value, campaign.advertising_channel_type, metrics.conversions, metrics.conversions_value, metrics.clicks,
+  metrics.cost_micros, metrics.impressions,asset_group_listing_group_filter.parent_listing_group_filter, campaign.name  FROM asset_group_product_group_view
+  WHERE  campaign.advertising_channel_type = PERFORMANCE_MAX AND segments.date>='${date_format(start)}' AND segments.date <='${date_format(end)}' `)
+  // ORDER BY segments.day_of_week DESC, segments.hour ASC
+  
+  for (const row of searchResults) {
+    //Logger.log(row)
+    if (row.assetGroupListingGroupFilter.parentListingGroupFilter!=null) continue
+   // if (row.assetGroupListingGroupFilter.caseValue&&row.assetGroupListingGroupFilter.caseValue.productItemId.value) pid=row.assetGroupListingGroupFilter.caseValue.productItemId.value; else pid=""
+   // if (row.assetGroupListingGroupFilter.caseValue&&row.assetGroupListingGroupFilter.caseValue.productType) pid2=row.assetGroupListingGroupFilter.caseValue.productType.level; else pid2=""
+    
+    
+    data.push([row.assetGroup.name,row.assetGroup.id,row.campaign.name,row.metrics.impressions,row.metrics.clicks,row.metrics.conversions,row.metrics.conversionsValue,(parseInt(row.metrics.costMicros)/1000000).toFixed(2)])
+  }
+  sh=ss.getSheetByName("Asset Group")
+  if (sh.getMaxRows()>1) sh.getRange(2,1,sh.getMaxRows(),data[0].length).clear()
+  sh.getRange(2,1,data.length, data[0].length).setValues(data);
+  
+
+  
+}
+
+
+function date_format(date){
+return Utilities.formatDate(date, AdsApp.currentAccount().getTimeZone(), 'yyyy-MM-dd')
+}
+
+
