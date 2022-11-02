@@ -4,7 +4,7 @@
 
 function main() {
   const count_days=14  
-  const sheet_url="https://docs.google.com/spreadsheets/d/1FXIlWWDdvozYy4EtlnGwj78sHUat28hWNOj5rDoOefY/edit#gid=0"
+  const sheet_url="https://docs.google.com/spreadsheets/d/1wuWPouMr0bc7LLscEB44sCea7h5G-WBH0Yvg_awlvNQ/edit#gid=0"
 
   
   const end=new Date(Date.now() - 86400000)    
